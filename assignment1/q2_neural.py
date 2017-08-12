@@ -27,7 +27,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     ofs = 0
     Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
 
-    W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
+    W1 = np.reshape(params[ofs:ofs + Dx * H], (Dx, H))
     ofs += Dx * H
     b1 = np.reshape(params[ofs:ofs + H], (1, H))
     ofs += H
@@ -36,11 +36,34 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    # raise NotImplementedError
+    # print(W1, b1, W2, b2)
+    h1 = data.dot(W1) + b1
+    a1 = sigmoid(h1)
+
+    h2 = a1.dot(W2) + b2
+    a2 = softmax(h2)
+    
+    '''
+    cost is calcuated on top of softmax
+    '''
+    cost = -np.sum(np.log(a2) * labels)
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    # raise NotImplementedError
+    '''
+    derivative is computed on the loss function
+    '''
+    df = a2 - labels
+    gradb2 = np.sum(df, axis=0)
+    gradW2 = a1.T.dot(df)
+
+    df = df.dot(W2.T)
+    df *= sigmoid_grad(a1)
+
+    gradb1 = np.sum(df, axis=0)
+    gradW1 = data.T.dot(df)
     ### END YOUR CODE
 
     ### Stack gradients (do not modify)
@@ -55,13 +78,13 @@ def sanity_check():
     Set up fake data and parameters for the neural network, and test using
     gradcheck.
     """
-    print "Running sanity check..."
+    print("Running sanity check...")
 
     N = 20
     dimensions = [10, 5, 10]
     data = np.random.randn(N, dimensions[0])   # each row will be a datum
     labels = np.zeros((N, dimensions[2]))
-    for i in xrange(N):
+    for i in range(N):
         labels[i, random.randint(0,dimensions[2]-1)] = 1
 
     params = np.random.randn((dimensions[0] + 1) * dimensions[1] + (
@@ -70,7 +93,6 @@ def sanity_check():
     gradcheck_naive(lambda params:
         forward_backward_prop(data, labels, params, dimensions), params)
 
-
 def your_sanity_checks():
     """
     Use this space add any additional sanity checks by running:
@@ -78,9 +100,9 @@ def your_sanity_checks():
     This function will not be called by the autograder, nor will
     your additional tests be graded.
     """
-    print "Running your sanity checks..."
+    print("Running your sanity checks...")
     ### YOUR CODE HERE
-    raise NotImplementedError
+    # raise NotImplementedError
     ### END YOUR CODE
 
 
