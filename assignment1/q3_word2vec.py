@@ -116,23 +116,27 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     predicted: (1, D)
     outputVectors: (V, D)
     '''
+    gradPred = np.zeros_like(predicted)
+    grad = np.zeros_like(outputVectors)
+
     z = predicted.dot(outputVectors.T) # (1, V)
     sig_target = sigmoid(z[:, target])
     #print(sig_target)
     cost = -np.log(sig_target)
 
-    gradPred = (sig_target - 1) * outputVectors[target] 
-    grad = (sig_target - 1) * predicted
+    gradPred += (sig_target - 1) * outputVectors[[target]] 
 
+    grad[[target]] += (sig_target - 1) * predicted
+    
     for k in indices:
         sig_k = sigmoid(-z[:, k])
         cost += -np.log(sig_k)
         
-        gradPred -= (sig_k - 1) * outputVectors[k]
-        grad += - (sig_k - 1) * predicted
+        gradPred -= (sig_k - 1) * outputVectors[[k]]
+        grad[[k]] += - (sig_k - 1) * predicted
     
-    assert gradPred.shape != predicted.shape
-    assert grad.shape != outputVectors.shape
+    assert gradPred.shape == predicted.shape
+    assert grad.shape == outputVectors.shape
     ### END YOUR CODE
 
     return cost, gradPred, grad
