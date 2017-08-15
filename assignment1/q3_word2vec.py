@@ -211,6 +211,34 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
 
     ### YOUR CODE HERE
     # raise NotImplementedError
+    V = len(tokens)
+    x = np.zeros((len(contextWords), V))
+    for i, w in enumerate(contextWords):
+        x[i, tokens[w]] = 1 # one-hot
+    
+    # this is a bit different from the lecture notes, where this is an average
+    predicted = np.sum(x.dot(inputVectors), axis=0, keepdims=True) # (1, D)
+
+    z = predicted.dot(outputVectors.T) # (1, D) dot (V, D).T => (1, V)
+
+    probs = softmax(z)
+
+    target = tokens[currentWord]
+
+    cost = -np.log(probs[:, target])
+
+    probs[:, target] -= 1 # (1, V)
+
+    # (V, D)
+    gradOut += probs.T.dot(predicted) # (V, 1) dot (1, D)
+
+    # (1, D)
+    gradPred = probs.dot(outputVectors) #(1, V) dot (V, D) 
+
+    # (V, D)
+    for i in range(x.shape[0]):
+        gradIn += x[[i]].T.dot(gradPred)
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
