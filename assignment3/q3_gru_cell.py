@@ -65,7 +65,56 @@ class GRUCell(tf.nn.rnn_cell.RNNCell):
         # be defined elsewhere!
         with tf.variable_scope(scope):
             ### YOUR CODE HERE (~20-30 lines)
-            pass
+            # pass
+            U_z = tf.get_variable(
+                name="U_z",
+                shape=(self.input_size,self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            W_z = tf.get_variable(
+                name="W_z",
+                shape=(self.state_size, self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            b_z = tf.get_variable(
+                name="b_z",
+                shape=(self.state_size),
+                initializer=tf.zeros_initializer
+            )
+            U_r = tf.get_variable(
+                name="U_r",
+                shape=(self.input_size,self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            W_r = tf.get_variable(
+                name="W_r",
+                shape=(self.state_size, self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            b_r = tf.get_variable(
+                name="b_r",
+                shape=(self.state_size),
+                initializer=tf.zeros_initializer
+            )
+            U_o = tf.get_variable(
+                name="U_o",
+                shape=(self.input_size,self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            W_o = tf.get_variable(
+                name="W_o",
+                shape=(self.state_size, self.state_size),
+                initializer=tf.contrib.layers.xavier_initializer()
+            )
+            b_o = tf.get_variable(
+                name="b_o",
+                shape=(self.state_size),
+                initializer=tf.zeros_initializer
+            )
+            z_t = tf.sigmoid(tf.matmul(inputs, U_z) + tf.matmul(state, W_z) + b_z)
+            r_t = tf.sigmoid(tf.matmul(inputs, U_r) + tf.matmul(state, W_r) + b_r)
+            o_t = tf.tanh(tf.matmul(inputs, U_o) + r_t * tf.matmul(state, W_o) + b_o)
+            new_state = z_t * state + (1 - z_t) * o_t
             ### END YOUR CODE ###
         # For a GRU, the output and state are the same (N.B. this isn't true
         # for an LSTM, though we aren't using one of those in our
